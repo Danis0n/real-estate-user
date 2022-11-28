@@ -1,0 +1,54 @@
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  OneToOne,
+  PrimaryColumn,
+  JoinColumn,
+} from 'typeorm';
+import { UserLogin } from './user.login.entity';
+import { UserInfo } from './user.info.entity';
+
+@Entity('app_user')
+export class User extends BaseEntity {
+  @PrimaryColumn({ generated: 'uuid' })
+  public uuid: string;
+
+  @OneToOne(() => UserLogin)
+  @JoinColumn({ name: 'login_id' })
+  public login: UserLogin;
+
+  @OneToOne(() => UserInfo)
+  @JoinColumn({ name: 'info_id' })
+  public info: UserInfo;
+
+  @Column({
+    name: 'date_of_creation',
+    nullable: false,
+    type: 'timestamp',
+  })
+  public date: Date;
+
+  @Column({
+    name: 'user_phone',
+    nullable: false,
+    unique: true,
+    type: 'varchar',
+  })
+  public phone: string;
+
+  @Column({
+    name: 'email',
+    nullable: false,
+    unique: true,
+    type: 'varchar',
+  })
+  public email: string;
+
+  @Column({
+    name: 'site_link',
+    nullable: true,
+    type: 'varchar',
+  })
+  public link: string;
+}
