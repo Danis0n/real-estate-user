@@ -12,6 +12,7 @@ export interface User {
   userInfo: UserInfo | undefined;
   userLogin: UserLogin | undefined;
   imageUrl: string;
+  date: string;
 }
 
 export interface UserInfo {
@@ -41,12 +42,12 @@ export interface FindAllUsersResponse {
 }
 
 export interface CreateUserRequest {
-  login: string;
   email: string;
   password: string;
+  login: string;
+  phone: string;
   firstName: string;
   lastName: string;
-  phone: string;
   dateOfBirth: string;
 }
 

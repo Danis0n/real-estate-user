@@ -36,6 +36,7 @@ export class UserDto implements User {
   public userInfo: UserInfoDto | undefined;
   public userLogin: UserLoginDto | undefined;
   public imageUrl: string;
+  public date: string;
 }
 
 export class UserLoginDto implements UserLogin {

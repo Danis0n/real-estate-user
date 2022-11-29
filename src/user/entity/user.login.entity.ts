@@ -1,9 +1,9 @@
-import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('app_login_user')
 export class UserLogin extends BaseEntity {
-  @PrimaryColumn({ type: 'integer', name: 'login_id', generated: 'increment' })
-  public id: number;
+  @PrimaryGeneratedColumn('increment', { type: 'integer', name: 'login_id' })
+  public id!: number;
 
   @Column({
     type: 'varchar',
@@ -11,8 +11,8 @@ export class UserLogin extends BaseEntity {
     nullable: false,
     name: 'login_name',
   })
-  public login: string;
+  public login!: string;
 
   @Column({ type: 'varchar', nullable: false, name: 'login_password' })
-  public password: string;
+  public password!: string;
 }

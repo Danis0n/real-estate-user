@@ -11,31 +11,31 @@ import { UserInfo } from './user.info.entity';
 
 @Entity('app_user')
 export class User extends BaseEntity {
-  @PrimaryColumn({ generated: 'uuid' })
-  public uuid: string;
+  @PrimaryColumn({ generated: 'uuid', name: 'user_id' })
+  public uuid!: string;
 
-  @OneToOne(() => UserLogin)
+  @OneToOne(() => UserLogin, { cascade: true })
   @JoinColumn({ name: 'login_id' })
-  public login: UserLogin;
+  public login!: UserLogin;
 
-  @OneToOne(() => UserInfo)
+  @OneToOne(() => UserInfo, { cascade: true })
   @JoinColumn({ name: 'info_id' })
-  public info: UserInfo;
+  public info!: UserInfo;
 
   @Column({
     name: 'date_of_creation',
     nullable: false,
     type: 'timestamp',
   })
-  public date: Date;
+  public date!: Date;
 
   @Column({
-    name: 'user_phone',
+    name: 'phone',
     nullable: false,
     unique: true,
     type: 'varchar',
   })
-  public phone: string;
+  public phone!: string;
 
   @Column({
     name: 'email',
@@ -43,7 +43,7 @@ export class User extends BaseEntity {
     unique: true,
     type: 'varchar',
   })
-  public email: string;
+  public email!: string;
 
   @Column({
     name: 'site_link',

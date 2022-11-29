@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   CreateUserRequestDto,
   FindOneDto,
@@ -6,45 +6,42 @@ import {
   UserInfoDto,
   UserLoginDto,
 } from './user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entity/user.entity';
+import { Repository } from 'typeorm';
+import { UserInfo } from './entity/user.info.entity';
+import { UserLogin } from './entity/user.login.entity';
+import { UserMapper } from './mappers/user.mapper';
 
 @Injectable()
 export class UserService {
-  async createUser(dto: CreateUserRequestDto) {
-    const user = this.fillUserTest(dto);
+  @InjectRepository(User)
+  private readonly userRepository: Repository<User>;
+
+  @InjectRepository(UserInfo)
+  private readonly userInfoRepository: Repository<UserInfo>;
+
+  @InjectRepository(UserLogin)
+  private readonly userLoginRepository: Repository<UserLogin>;
+
+  @Inject(UserMapper)
+  private readonly userMapper: UserMapper;
+
+  public async createUser(dto: CreateUserRequestDto) {
+    let user: User = this.userMapper.mapToUserCreate(dto);
+    user = await this.userRepository.save(user);
 
     return {
       status: '200',
-      user: user,
+      user: this.userMapper.mapToUserDto(user),
     };
   }
 
-  //little mapper for a while
-  private fillUserTest(dto: CreateUserRequestDto): UserDto {
-    const user = new UserDto();
-    const userInfo = new UserInfoDto();
-    userInfo.firstName = dto.firstName;
-    userInfo.lastName = dto.lastName;
-    userInfo.birthData = dto.dateOfBirth;
-    userInfo.description = 'empty-text';
-    user.userInfo = userInfo;
-
-    const userLogin = new UserLoginDto();
-    userLogin.login = dto.login;
-    user.userLogin = userLogin;
-
-    user.id = '1';
-    user.email = dto.email;
-    user.phone = dto.phone;
-    user.imageUrl = '....';
-    user.siteLink = 'empty here';
-    return user;
-  }
-
-  async findAll() {
+  public async findAll() {
     return null;
   }
 
-  async findById(payload: FindOneDto) {
+  public async findById(payload: FindOneDto) {
     return undefined;
   }
 }

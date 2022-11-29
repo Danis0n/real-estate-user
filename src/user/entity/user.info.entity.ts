@@ -1,18 +1,18 @@
-import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('app_user_info')
+@Entity('app_info_user')
 export class UserInfo extends BaseEntity {
-  @PrimaryColumn({ name: 'info_id', generated: 'increment' })
-  public id: number;
+  @PrimaryGeneratedColumn('increment', { name: 'info_id' })
+  public id!: number;
 
   @Column({ name: 'first_name' })
-  public firstName: string;
+  public firstName!: string;
 
   @Column({ name: 'last_name' })
-  public lastName: string;
+  public lastName!: string;
 
-  @Column({ name: 'date_of_birth' })
-  public birthData: Date;
+  @Column({ name: 'birth' })
+  public birthData: string;
 
   @Column({ name: 'description' })
   public description: string;
