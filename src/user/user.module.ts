@@ -6,10 +6,11 @@ import { UserLogin } from './entity/user.login.entity';
 import { UserInfo } from './entity/user.info.entity';
 import { User } from './entity/user.entity';
 import { UserMapper } from './mappers/user.mapper';
+import { UserRepository } from './repository/user.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserLogin, UserInfo, User])],
-  providers: [UserService, UserMapper],
+  providers: [UserService, UserMapper, UserRepository],
   controllers: [UserController],
 })
 export class UserModule {}

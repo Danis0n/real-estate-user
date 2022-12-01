@@ -12,12 +12,10 @@ import { Repository } from 'typeorm';
 import { UserInfo } from './entity/user.info.entity';
 import { UserLogin } from './entity/user.login.entity';
 import { UserMapper } from './mappers/user.mapper';
+import { UserRepository } from './repository/user.repository';
 
 @Injectable()
 export class UserService {
-  @InjectRepository(User)
-  private readonly userRepository: Repository<User>;
-
   @InjectRepository(UserInfo)
   private readonly userInfoRepository: Repository<UserInfo>;
 
@@ -27,9 +25,12 @@ export class UserService {
   @Inject(UserMapper)
   private readonly userMapper: UserMapper;
 
+  @Inject(UserRepository)
+  private readonly userRepository: UserRepository;
+
   public async createUser(dto: CreateUserRequestDto) {
     let user: User = this.userMapper.mapToUserCreate(dto);
-    user = await this.userRepository.save(user);
+    user = await this.userRepository.saveUser(user);
 
     return {
       status: '200',
@@ -38,10 +39,12 @@ export class UserService {
   }
 
   public async findAll() {
-    return null;
+    const users: User[] = await this.userRepository.findAllUsers();
+    return { users: this.userMapper.mapArrayUsersDto(users) };
   }
 
   public async findById(payload: FindOneDto) {
-    return undefined;
+    const user: User = await this.userRepository.findUserById(payload.id);
+    return { user: this.userMapper.mapToUserDto(user) };
   }
 }

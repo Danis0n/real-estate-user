@@ -24,7 +24,6 @@ export class CreateUserRequestDto implements CreateUserRequest {
 }
 
 export class FindOneDto implements FindOneUserRequest {
-  @IsNumber({ allowInfinity: false, allowNaN: false })
   id: string;
 }
 

@@ -41,6 +41,14 @@ export class UserMapper {
     return dto;
   }
 
+  public mapArrayUsersDto(users: User[]): UserDto[] {
+    const usersDto: UserDto[] = [];
+    users.forEach((User) => {
+      usersDto.push(this.mapToUserDto(User));
+    });
+    return usersDto;
+  }
+
   public mapToUserEntity(dto: UserDto, password: string): User {
     const user = new User();
     user.email = dto.email;
