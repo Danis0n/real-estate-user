@@ -1,11 +1,16 @@
 import { User } from '../entity/user.entity';
-import { UserDto, UserInfoDto, UserLoginDto } from '../user.dto';
+import { UserDto, UserInfoDto, UserLoginDto } from '../dto/user.dto';
 import { UserLogin } from '../entity/user.login.entity';
 import { UserInfo } from '../entity/user.info.entity';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateUserRequestDto } from '../user.dto';
+import { CreateUserRequestDto } from '../dto/user.dto';
+import { Inject } from '@nestjs/common';
+import { RoleMapper } from './role.mapper';
 
 export class UserMapper {
+  @Inject(RoleMapper)
+  private readonly roleMapper: RoleMapper;
+
   public mapToUserCreate(dto: CreateUserRequestDto): User {
     const user = new User();
     user.uuid = uuidv4();
@@ -26,6 +31,8 @@ export class UserMapper {
     info.birthData = dto.birthData;
     info.firstName = dto.firstName;
     info.lastName = dto.lastName;
+    info.enabled = true;
+    info.locked = false;
     return info;
   }
 
@@ -38,6 +45,7 @@ export class UserMapper {
     dto.email = user.email;
     dto.siteLink = user.link;
     dto.date = user.date.toString();
+    dto.roles = this.roleMapper.mapToRoleDtoArray(user.roles);
     return dto;
   }
 

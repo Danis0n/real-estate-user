@@ -14,6 +14,20 @@ export class UserInfo extends BaseEntity {
   @Column({ name: 'birth' })
   public birthData: string;
 
-  @Column({ name: 'description' })
+  @Column({ name: 'description', nullable: true })
   public description: string;
+
+  @Column({
+    name: 'enabled',
+    nullable: false,
+    type: 'boolean',
+  })
+  public enabled: boolean;
+
+  @Column({
+    name: 'locked',
+    nullable: false,
+    type: 'boolean',
+  })
+  public locked: boolean;
 }

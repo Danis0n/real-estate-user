@@ -1,6 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
 import { Repository } from 'typeorm';
+import { Role } from "../entity/role.entity";
 
 export class UserRepository {
   @InjectRepository(User)
@@ -27,5 +28,9 @@ export class UserRepository {
 
   public async saveUser(user: User): Promise<User> {
     return await this.userRepository.save(user);
+  }
+
+  public async saveRoleToUser(role: Role, user: User): Promise<User> {
+    return undefined;
   }
 }

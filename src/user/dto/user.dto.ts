@@ -4,14 +4,9 @@ import {
   User,
   UserInfo,
   UserLogin,
-} from './user.pb';
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  Length,
-} from 'class-validator';
+} from '../user.pb';
+import { IsNumber } from 'class-validator';
+import { RoleDto } from './role.dto';
 
 export class CreateUserRequestDto implements CreateUserRequest {
   public readonly email: string;
@@ -36,6 +31,7 @@ export class UserDto implements User {
   public userLogin: UserLoginDto | undefined;
   public imageUrl: string;
   public date: string;
+  roles: RoleDto[];
 }
 
 export class UserLoginDto implements UserLogin {
@@ -47,6 +43,8 @@ export class UserInfoDto implements UserInfo {
   public description: string;
   public firstName: string;
   public lastName: string;
+  public enabled: boolean;
+  public locked: boolean;
 }
 
 export class FindOneRequestDto implements FindOneUserRequest {

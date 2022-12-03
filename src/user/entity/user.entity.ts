@@ -5,9 +5,12 @@ import {
   OneToOne,
   PrimaryColumn,
   JoinColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { UserLogin } from './user.login.entity';
 import { UserInfo } from './user.info.entity';
+import { Role } from './role.entity';
 
 @Entity('app_user')
 export class User extends BaseEntity {
@@ -21,6 +24,20 @@ export class User extends BaseEntity {
   @OneToOne(() => UserInfo, { cascade: true })
   @JoinColumn({ name: 'info_id' })
   public info!: UserInfo;
+
+  @ManyToMany(() => Role, (role) => role.users)
+  @JoinTable({
+    name: 'app_user_role',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'uuid',
+    },
+    inverseJoinColumn: {
+      name: 'role_id',
+      referencedColumnName: 'id',
+    },
+  })
+  public roles!: Role[];
 
   @Column({
     name: 'date_of_creation',

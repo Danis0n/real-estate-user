@@ -1,9 +1,9 @@
 import { Controller, Inject } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import {
+  CreateRoleResponse,
   CreateUserResponse,
   FindAllUsersResponse,
-  FindOneUserRequest,
   FindOneUserResponse,
   USER_SERVICE_NAME,
 } from './user.pb';
@@ -27,5 +27,10 @@ export class UserController {
   @GrpcMethod(USER_SERVICE_NAME, 'FindById')
   private async findById(payload): Promise<FindOneUserResponse> {
     return this.service.findById(payload);
+  }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'CreateRole')
+  private async createRole(payload): Promise<CreateRoleResponse> {
+    return this.service.createRole(payload);
   }
 }
