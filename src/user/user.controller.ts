@@ -33,4 +33,24 @@ export class UserController {
   private async createRole(payload): Promise<CreateRoleResponse> {
     return this.service.createRole(payload);
   }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'FindByLogin')
+  private async findByLogin(payload): Promise<FindOneUserResponse> {
+    return this.service.findByLogin(payload);
+  }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'FindByPhone')
+  private async findByPhone(payload): Promise<FindOneUserResponse> {
+    return this.service.findByPhone(payload);
+  }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'FindByEmail')
+  private async findByEmail(payload): Promise<FindOneUserResponse> {
+    return this.service.findByEmail(payload);
+  }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'FindByInn')
+  private async findByInn(payload): Promise<FindOneUserResponse> {
+    return this.service.findByInn(payload);
+  }
 }

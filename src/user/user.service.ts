@@ -1,5 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateUserRequestDto, FindOneDto } from './dto/user.dto';
+import {
+  CreateUserRequestDto,
+  FindEmailDto,
+  FindInnDto,
+  FindLoginDto,
+  FindOneDto,
+  FindPhoneDto,
+} from './dto/user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { Repository } from 'typeorm';
@@ -34,7 +41,9 @@ export class UserService {
 
   public async createUser(dto: CreateUserRequestDto) {
     let user: User = this.userMapper.mapToUserCreate(dto);
-    const role: Role = await this.roleRepository.findByName('user');
+    const role: Role = await this.roleRepository.findByName(
+      dto.inn == '' && dto.link == '' ? 'company' : 'user',
+    );
     user.roles = [role];
     user = await this.userRepository.saveUser(user);
     return {
@@ -57,5 +66,25 @@ export class UserService {
     let role: Role = this.roleMapper.mapToNewRole(payload.name);
     role = await this.roleRepository.saveRole(role);
     return { status: '200', role: role };
+  }
+
+  public async findByLogin(dto: FindLoginDto) {
+    const user: User = await this.userRepository.findUserByLogin(dto.login);
+    return { user: this.userMapper.mapToUserDto(user) };
+  }
+
+  public async findByPhone(dto: FindPhoneDto) {
+    const user: User = await this.userRepository.findUserByPhone(dto.phone);
+    return { user: this.userMapper.mapToUserDto(user) };
+  }
+
+  public async findByEmail(dto: FindEmailDto) {
+    const user: User = await this.userRepository.findUserByEmail(dto.email);
+    return { user: this.userMapper.mapToUserDto(user) };
+  }
+
+  public async findByInn(dto: FindInnDto) {
+    const user: User = await this.userRepository.findUserByInn(dto.inn);
+    return { user: this.userMapper.mapToUserDto(user) };
   }
 }

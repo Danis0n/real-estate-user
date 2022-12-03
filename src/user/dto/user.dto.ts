@@ -1,11 +1,11 @@
 import {
-  CreateUserRequest,
+  CreateUserRequest, FindOneUserEmailRequest, FindOneUserInnRequest, FindOneUserLoginRequest, FindOneUserPhoneRequest,
   FindOneUserRequest,
   User,
   UserInfo,
   UserLogin,
-} from '../user.pb';
-import { IsNumber } from 'class-validator';
+  UserUrInfo
+} from "../user.pb";
 import { RoleDto } from './role.dto';
 
 export class CreateUserRequestDto implements CreateUserRequest {
@@ -16,10 +16,28 @@ export class CreateUserRequestDto implements CreateUserRequest {
   public readonly firstName: string;
   public readonly lastName: string;
   public readonly dateOfBirth: string;
+  public readonly inn: string;
+  public readonly link: string;
 }
 
 export class FindOneDto implements FindOneUserRequest {
   id: string;
+}
+
+export class FindLoginDto implements FindOneUserLoginRequest {
+  login: string;
+}
+
+export class FindPhoneDto implements FindOneUserPhoneRequest {
+  phone: string;
+}
+
+export class FindEmailDto implements FindOneUserEmailRequest {
+  email: string;
+}
+
+export class FindInnDto implements FindOneUserInnRequest {
+  inn: string;
 }
 
 export class UserDto implements User {
@@ -29,9 +47,17 @@ export class UserDto implements User {
   public siteLink: string;
   public userInfo: UserInfoDto | undefined;
   public userLogin: UserLoginDto | undefined;
+  public userUr: UserUrInfoDto | undefined;
   public imageUrl: string;
   public date: string;
   roles: RoleDto[];
+}
+
+export class UserUrInfoDto implements UserUrInfo {
+  address: string;
+  description: string;
+  inn: string;
+  link: string;
 }
 
 export class UserLoginDto implements UserLogin {
@@ -39,15 +65,10 @@ export class UserLoginDto implements UserLogin {
 }
 
 export class UserInfoDto implements UserInfo {
-  public birthData: string;
+  public birthDate: string;
   public description: string;
   public firstName: string;
   public lastName: string;
   public enabled: boolean;
   public locked: boolean;
-}
-
-export class FindOneRequestDto implements FindOneUserRequest {
-  @IsNumber({ allowInfinity: false, allowNaN: false })
-  public readonly id: string;
 }

@@ -11,6 +11,7 @@ import {
 import { UserLogin } from './user.login.entity';
 import { UserInfo } from './user.info.entity';
 import { Role } from './role.entity';
+import { UserUrInfo } from './user.ur.info.entity';
 
 @Entity('app_user')
 export class User extends BaseEntity {
@@ -24,6 +25,10 @@ export class User extends BaseEntity {
   @OneToOne(() => UserInfo, { cascade: true })
   @JoinColumn({ name: 'info_id' })
   public info!: UserInfo;
+
+  @OneToOne(() => UserUrInfo, { cascade: true, nullable: true })
+  @JoinColumn({ name: 'ur_id' })
+  public ur: UserUrInfo;
 
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({
@@ -61,11 +66,4 @@ export class User extends BaseEntity {
     type: 'varchar',
   })
   public email!: string;
-
-  @Column({
-    name: 'site_link',
-    nullable: true,
-    type: 'varchar',
-  })
-  public link: string;
 }

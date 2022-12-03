@@ -14,9 +14,6 @@ export class UserInfo extends BaseEntity {
   @Column({ name: 'birth' })
   public birthData: string;
 
-  @Column({ name: 'description', nullable: true })
-  public description: string;
-
   @Column({
     name: 'enabled',
     nullable: false,

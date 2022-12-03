@@ -10,9 +10,12 @@ import { UserRepository } from './repository/user.repository';
 import { Role } from './entity/role.entity';
 import { RoleMapper } from './mappers/role.mapper';
 import { RoleRepository } from './repository/role.repository';
+import { UserUrInfo } from './entity/user.ur.info.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserLogin, UserInfo, User, Role])],
+  imports: [
+    TypeOrmModule.forFeature([UserLogin, UserInfo, User, Role, UserUrInfo]),
+  ],
   providers: [
     UserService,
     UserMapper,

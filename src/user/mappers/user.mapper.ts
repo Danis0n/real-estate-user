@@ -1,11 +1,17 @@
 import { User } from '../entity/user.entity';
-import { UserDto, UserInfoDto, UserLoginDto } from '../dto/user.dto';
+import {
+  UserDto,
+  UserInfoDto,
+  UserLoginDto,
+  UserUrInfoDto,
+} from '../dto/user.dto';
 import { UserLogin } from '../entity/user.login.entity';
 import { UserInfo } from '../entity/user.info.entity';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateUserRequestDto } from '../dto/user.dto';
 import { Inject } from '@nestjs/common';
 import { RoleMapper } from './role.mapper';
+import { UserUrInfo } from '../entity/user.ur.info.entity';
 
 export class UserMapper {
   @Inject(RoleMapper)
@@ -23,7 +29,17 @@ export class UserMapper {
     user.email = dto.email;
     user.phone = dto.phone;
     user.date = new Date();
+    if (dto.inn != '' && dto.link != '')
+      user.ur = this.mapToUserUrInfoCreate(dto.inn, dto.link);
+
     return user;
+  }
+
+  public mapToUserUrInfoCreate(inn: string, link: string): UserUrInfo {
+    const ur = new UserUrInfo();
+    ur.inn = inn;
+    ur.link = link;
+    return ur;
   }
 
   public mapToUserInfoCreate(dto): UserInfo {
@@ -37,15 +53,16 @@ export class UserMapper {
   }
 
   public mapToUserDto(user: User): UserDto {
+    if (!user) return null;
     const dto = new UserDto();
+    dto.id = user.uuid;
     dto.userInfo = this.mapToUserInfoDto(user.info);
     dto.userLogin = this.mapToUserLoginDto(user.login);
-    dto.id = user.uuid;
+    dto.userUr = this.mapToUserUrInfo(user.ur);
+    dto.roles = this.roleMapper.mapToRoleDtoArray(user.roles);
     dto.phone = user.phone;
     dto.email = user.email;
-    dto.siteLink = user.link;
     dto.date = user.date.toString();
-    dto.roles = this.roleMapper.mapToRoleDtoArray(user.roles);
     return dto;
   }
 
@@ -64,7 +81,6 @@ export class UserMapper {
     user.login = this.mapToUserLogin(dto.userLogin, password);
     user.info = this.mapToUserInfo(dto.userInfo);
     user.date = new Date();
-    user.link = null;
     user.uuid = uuidv4();
 
     return user;
@@ -87,8 +103,7 @@ export class UserMapper {
     const userInfo = new UserInfoDto();
     userInfo.firstName = info.firstName;
     userInfo.lastName = info.lastName;
-    userInfo.birthData = info.birthData.toString();
-    userInfo.description = info.description;
+    userInfo.birthDate = info.birthData.toString();
     return userInfo;
   }
 
@@ -96,9 +111,17 @@ export class UserMapper {
     const userInfo = new UserInfo();
     userInfo.firstName = dto.firstName;
     userInfo.lastName = dto.lastName;
-    userInfo.description = '';
-    userInfo.birthData = dto.birthData;
-
+    userInfo.birthData = dto.birthDate;
     return userInfo;
+  }
+
+  private mapToUserUrInfo(ur: UserUrInfo): UserUrInfoDto {
+    if (!ur) return null;
+    const urDto = new UserUrInfoDto();
+    urDto.inn = ur.inn;
+    urDto.link = ur.link;
+    urDto.description = ur.description;
+    urDto.address = ur.address;
+    return urDto;
   }
 }
