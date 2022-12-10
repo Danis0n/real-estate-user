@@ -33,7 +33,7 @@ export class UserRepository {
     });
   }
 
-  public async findUserByLogin(login: string) {
+  public async findUserByLogin(login: string): Promise<User> {
     return await this.userRepository.findOne({
       where: {
         login: {
@@ -49,7 +49,7 @@ export class UserRepository {
     });
   }
 
-  public async findUserByPhone(phone: string) {
+  public async findUserByPhone(phone: string): Promise<User> {
     return await this.userRepository.findOne({
       where: { phone: phone },
       relations: {
@@ -61,7 +61,7 @@ export class UserRepository {
     });
   }
 
-  public async findUserByInn(inn: string) {
+  public async findUserByInn(inn: string): Promise<User> {
     return await this.userRepository.findOne({
       where: {
         ur: {
@@ -77,7 +77,7 @@ export class UserRepository {
     });
   }
 
-  public async findUserByEmail(email: string) {
+  public async findUserByEmail(email: string): Promise<User> {
     return await this.userRepository.findOne({
       where: { email: email },
       relations: {
@@ -85,6 +85,19 @@ export class UserRepository {
         info: true,
         roles: true,
         ur: true,
+      },
+    });
+  }
+
+  async findHashedPassword(login: string): Promise<User> {
+    return await this.userRepository.findOne({
+      where: {
+        login: {
+          login: login,
+        },
+      },
+      relations: {
+        login: true,
       },
     });
   }

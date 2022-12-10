@@ -5,8 +5,10 @@ import {
   CreateUserResponse,
   FindAllUsersResponse,
   FindOneUserResponse,
+  GetHashedPasswordResponse,
+  UploadImageResponse,
   USER_SERVICE_NAME,
-} from './user.pb';
+} from './proto/user.pb';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -52,5 +54,15 @@ export class UserController {
   @GrpcMethod(USER_SERVICE_NAME, 'FindByInn')
   private async findByInn(payload): Promise<FindOneUserResponse> {
     return this.service.findByInn(payload);
+  }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'GetHashedPassword')
+  private async getHashedPassword(payload): Promise<GetHashedPasswordResponse> {
+    return this.service.getHashedPassword(payload);
+  }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'UploadImageToUser')
+  private async uploadImage(payload): Promise<UploadImageResponse> {
+    return this.service.uploadImage(payload);
   }
 }

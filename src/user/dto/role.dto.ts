@@ -1,4 +1,4 @@
-import { CreateRoleRequest } from '../user.pb';
+import { CreateRoleRequest } from '../proto/user.pb';
 import { IsString } from 'class-validator';
 
 export class RoleDto {

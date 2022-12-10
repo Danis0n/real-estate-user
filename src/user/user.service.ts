@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import {
   CreateUserRequestDto,
   FindEmailDto,
@@ -18,9 +18,22 @@ import { CreateRoleDto } from './dto/role.dto';
 import { Role } from './entity/role.entity';
 import { RoleRepository } from './repository/role.repository';
 import { RoleMapper } from './mappers/role.mapper';
+import { UploadImageResponse } from './proto/user.pb';
+import {
+  IMAGE_SERVICE_NAME,
+  ImageServiceClient,
+  ImageUserResponse,
+} from './proto/image.pb';
+import { ClientGrpc } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
+  private imageSvc: ImageServiceClient;
+
+  @Inject(IMAGE_SERVICE_NAME)
+  private readonly client: ClientGrpc;
+
   @InjectRepository(UserInfo)
   private readonly userInfoRepository: Repository<UserInfo>;
 
@@ -38,6 +51,11 @@ export class UserService {
 
   @Inject(RoleRepository)
   private readonly roleRepository: RoleRepository;
+
+  onModuleInit(): void {
+    this.imageSvc =
+      this.client.getService<ImageServiceClient>(IMAGE_SERVICE_NAME);
+  }
 
   public async createUser(dto: CreateUserRequestDto) {
     let user: User = this.userMapper.mapToUserCreate(dto);
@@ -86,5 +104,18 @@ export class UserService {
   public async findByInn(dto: FindInnDto) {
     const user: User = await this.userRepository.findUserByInn(dto.inn);
     return { user: this.userMapper.mapToUserDto(user) };
+  }
+
+  public async getHashedPassword(dto: FindLoginDto) {
+    const user: User = await this.userRepository.findHashedPassword(dto.login);
+    return { password: user.login.password };
+  }
+
+  public async uploadImage(payload): Promise<UploadImageResponse> {
+    const image: ImageUserResponse = await firstValueFrom(
+      this.imageSvc.imageUploadUser(payload),
+    );
+    console.log(image);
+    return { status: null, error: null, uuid: null };
   }
 }

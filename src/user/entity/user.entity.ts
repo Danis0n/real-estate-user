@@ -66,4 +66,12 @@ export class User extends BaseEntity {
     type: 'varchar',
   })
   public email!: string;
+
+  @Column({
+    name: 'image_id',
+    nullable: true,
+    unique: true,
+    type: 'varchar',
+  })
+  public image!: string;
 }

@@ -11,10 +11,23 @@ import { Role } from './entity/role.entity';
 import { RoleMapper } from './mappers/role.mapper';
 import { RoleRepository } from './repository/role.repository';
 import { UserUrInfo } from './entity/user.ur.info.entity';
+import { IMAGE_PACKAGE_NAME, IMAGE_SERVICE_NAME } from './proto/image.pb';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserLogin, UserInfo, User, Role, UserUrInfo]),
+    ClientsModule.register([
+      {
+        name: IMAGE_SERVICE_NAME,
+        transport: Transport.GRPC,
+        options: {
+          url: '0.0.0.0:50053',
+          package: IMAGE_PACKAGE_NAME,
+          protoPath: 'node_modules/proto-config/proto/image.proto',
+        },
+      },
+    ]),
   ],
   providers: [
     UserService,

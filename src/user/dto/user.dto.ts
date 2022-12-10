@@ -5,7 +5,7 @@ import {
   UserInfo,
   UserLogin,
   UserUrInfo
-} from "../user.pb";
+} from "../proto/user.pb";
 import { RoleDto } from './role.dto';
 
 export class CreateUserRequestDto implements CreateUserRequest {
