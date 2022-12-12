@@ -18,7 +18,12 @@ import { CreateRoleDto } from './dto/role.dto';
 import { Role } from './entity/role.entity';
 import { RoleRepository } from './repository/role.repository';
 import { RoleMapper } from './mappers/role.mapper';
-import { UploadImageResponse } from './proto/user.pb';
+import {
+  DeleteImageRequest,
+  DeleteImageResponse,
+  UploadImageRequest,
+  UploadImageResponse,
+} from './proto/user.pb';
 import {
   IMAGE_SERVICE_NAME,
   ImageServiceClient,
@@ -111,11 +116,35 @@ export class UserService implements OnModuleInit {
     return { password: user.login.password };
   }
 
-  public async uploadImage(payload): Promise<UploadImageResponse> {
+  public async uploadImage(
+    dto: UploadImageRequest,
+  ): Promise<UploadImageResponse> {
+    await this.deleteUserPrevImage(dto.uuid);
     const image: ImageUserResponse = await firstValueFrom(
-      this.imageSvc.imageUploadUser(payload),
+      this.imageSvc.imageUploadUser(dto),
     );
-    console.log(image);
-    return { status: null, error: null, uuid: null };
+    await this.userRepository.setImageToUser(image.uuid, dto.uuid);
+    return { status: '200', error: null, uuid: image.uuid };
+  }
+
+  public async deleteImage(
+    dto: DeleteImageRequest,
+  ): Promise<DeleteImageResponse> {
+    const user: User = await this.userRepository.findUserById(dto.uuid);
+    if (user.image !== null) {
+      await this.userRepository.deleteImageFromUser(dto.uuid);
+      return await firstValueFrom(
+        this.imageSvc.imageDelete({ uuid: user.image }),
+      );
+    }
+    return { status: '200', error: 'Пользователь не имеет аватара' };
+  }
+
+  private async deleteUserPrevImage(uuid: string) {
+    const user: User = await this.userRepository.findUserById(uuid);
+    if (user.image !== null) {
+      await firstValueFrom(this.imageSvc.imageDelete({ uuid: user.image }));
+    }
+    return;
   }
 }

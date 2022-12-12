@@ -89,7 +89,7 @@ export class UserRepository {
     });
   }
 
-  async findHashedPassword(login: string): Promise<User> {
+  public async findHashedPassword(login: string): Promise<User> {
     return await this.userRepository.findOne({
       where: {
         login: {
@@ -100,5 +100,13 @@ export class UserRepository {
         login: true,
       },
     });
+  }
+
+  public async deleteImageFromUser(uuid: string) {
+    return await this.userRepository.update(uuid, { image: null });
+  }
+
+  public async setImageToUser(imageUuid: string, userUuid: string) {
+    return await this.userRepository.update(userUuid, { image: imageUuid });
   }
 }

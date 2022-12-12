@@ -3,6 +3,7 @@ import { GrpcMethod } from '@nestjs/microservices';
 import {
   CreateRoleResponse,
   CreateUserResponse,
+  DeleteImageResponse,
   FindAllUsersResponse,
   FindOneUserResponse,
   GetHashedPasswordResponse,
@@ -64,5 +65,10 @@ export class UserController {
   @GrpcMethod(USER_SERVICE_NAME, 'UploadImageToUser')
   private async uploadImage(payload): Promise<UploadImageResponse> {
     return this.service.uploadImage(payload);
+  }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'DeleteImageFromUser')
+  private async deleteImage(payload): Promise<DeleteImageResponse> {
+    return this.service.deleteImage(payload);
   }
 }
