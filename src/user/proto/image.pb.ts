@@ -9,7 +9,7 @@ export interface ImageDeleteRequest {
 }
 
 export interface ImageDeleteResponse {
-  status: string;
+  status: number;
   error: string;
 }
 
@@ -22,23 +22,29 @@ export interface ImageUserRequest {
 }
 
 export interface ImageUserResponse {
-  status: string;
+  status: number;
   error: string;
   uuid: string;
 }
 
-export interface ImagePostRequest {
-  buffer: Uint8Array;
+export interface ImageCreate {
   fieldName: string;
   originalName: string;
   mimetype: string;
+  buffer: Uint8Array;
   size: number;
 }
 
+export interface ImagePostRequest {
+  images: ImageCreate[];
+  uuid: string;
+}
+
 export interface ImagePostResponse {
-  status: string;
+  status: number;
   error: string;
   uuid: string;
+  imagesUuids: string[];
 }
 
 export interface ImageViewRequest {

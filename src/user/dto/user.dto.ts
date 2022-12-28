@@ -1,11 +1,15 @@
 import {
-  CreateUserRequest, FindOneUserEmailRequest, FindOneUserInnRequest, FindOneUserLoginRequest, FindOneUserPhoneRequest,
+  CreateUserRequest,
+  FindOneUserEmailRequest,
+  FindOneUserInnRequest,
+  FindOneUserLoginRequest,
+  FindOneUserPhoneRequest,
   FindOneUserRequest,
   User,
   UserInfo,
   UserLogin,
-  UserUrInfo
-} from "../proto/user.pb";
+  UserUrInfo,
+} from '../proto/user.pb';
 import { RoleDto } from './role.dto';
 
 export class CreateUserRequestDto implements CreateUserRequest {

@@ -1,6 +1,10 @@
 import { Controller, Inject } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import {
+  ChangeInfoResponse,
+  ChangePasswordResponse,
+  CheckUserResponse,
+  ConfirmAccountResponse,
   CreateRoleResponse,
   CreateUserResponse,
   DeleteImageResponse,
@@ -42,19 +46,9 @@ export class UserController {
     return this.service.findByLogin(payload);
   }
 
-  @GrpcMethod(USER_SERVICE_NAME, 'FindByPhone')
-  private async findByPhone(payload): Promise<FindOneUserResponse> {
-    return this.service.findByPhone(payload);
-  }
-
-  @GrpcMethod(USER_SERVICE_NAME, 'FindByEmail')
-  private async findByEmail(payload): Promise<FindOneUserResponse> {
-    return this.service.findByEmail(payload);
-  }
-
-  @GrpcMethod(USER_SERVICE_NAME, 'FindByInn')
-  private async findByInn(payload): Promise<FindOneUserResponse> {
-    return this.service.findByInn(payload);
+  @GrpcMethod(USER_SERVICE_NAME, 'CheckUser')
+  private async checkUser(payload): Promise<CheckUserResponse> {
+    return this.service.checkUser(payload);
   }
 
   @GrpcMethod(USER_SERVICE_NAME, 'GetHashedPassword')
@@ -70,5 +64,25 @@ export class UserController {
   @GrpcMethod(USER_SERVICE_NAME, 'DeleteImageFromUser')
   private async deleteImage(payload): Promise<DeleteImageResponse> {
     return this.service.deleteImage(payload);
+  }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'ChangePassword')
+  private async changePassword(payload): Promise<ChangePasswordResponse> {
+    return this.service.changePassword(payload);
+  }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'ConfirmAccount')
+  private async confirm(payload): Promise<ConfirmAccountResponse> {
+    return this.service.confirm(payload);
+  }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'ChangeInfo')
+  private async changeInfo(payload): Promise<ChangeInfoResponse> {
+    return this.service.changeInfo(payload);
+  }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'ChangeCompanyInfo')
+  private async changeCompanyInfo(payload): Promise<ChangeInfoResponse> {
+    return this.service.changeCompanyInfo(payload);
   }
 }

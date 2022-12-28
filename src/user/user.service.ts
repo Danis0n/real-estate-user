@@ -1,12 +1,5 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import {
-  CreateUserRequestDto,
-  FindEmailDto,
-  FindInnDto,
-  FindLoginDto,
-  FindOneDto,
-  FindPhoneDto,
-} from './dto/user.dto';
+import { HttpStatus, Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { CreateUserRequestDto, FindLoginDto, FindOneDto } from './dto/user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { Repository } from 'typeorm';
@@ -19,8 +12,22 @@ import { Role } from './entity/role.entity';
 import { RoleRepository } from './repository/role.repository';
 import { RoleMapper } from './mappers/role.mapper';
 import {
+  ChangeCompanyInfoRequest,
+  ChangeInfoRequest,
+  ChangeInfoResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
+  CheckUserRequest,
+  CheckUserResponse,
+  ConfirmAccountRequest,
+  ConfirmAccountResponse,
+  CreateRoleResponse,
+  CreateUserResponse,
   DeleteImageRequest,
   DeleteImageResponse,
+  FindAllUsersResponse,
+  FindOneUserResponse,
+  GetHashedPasswordResponse,
   UploadImageRequest,
   UploadImageResponse,
 } from './proto/user.pb';
@@ -62,56 +69,73 @@ export class UserService implements OnModuleInit {
       this.client.getService<ImageServiceClient>(IMAGE_SERVICE_NAME);
   }
 
-  public async createUser(dto: CreateUserRequestDto) {
+  public async createUser(
+    dto: CreateUserRequestDto,
+  ): Promise<CreateUserResponse> {
     let user: User = this.userMapper.mapToUserCreate(dto);
+
     const role: Role = await this.roleRepository.findByName(
       dto.inn == '' && dto.link == '' ? 'company' : 'user',
     );
+
     user.roles = [role];
     user = await this.userRepository.saveUser(user);
+
+    if (!user) return { status: HttpStatus.BAD_REQUEST, user: null };
+
     return {
-      status: '200',
+      status: HttpStatus.OK,
       user: this.userMapper.mapToUserDto(user),
     };
   }
 
-  public async findAll() {
-    const users: User[] = await this.userRepository.findAllUsers();
-    return { users: this.userMapper.mapArrayUsersDto(users) };
+  public async findAll(): Promise<FindAllUsersResponse> {
+    const users: User[] = await this.userRepository.findAll();
+    return { users: this.userMapper.mapToArrayUserDto(users) };
   }
 
-  public async findById(payload: FindOneDto) {
-    const user: User = await this.userRepository.findUserById(payload.id);
-    return { user: this.userMapper.mapToUserDto(user) };
+  public async findById(dto: FindOneDto): Promise<FindOneUserResponse> {
+    const user: User = await this.userRepository.findById(dto.id);
+    return { user: user != null ? this.userMapper.mapToUserDto(user) : null };
   }
 
-  public async createRole(payload: CreateRoleDto) {
-    let role: Role = this.roleMapper.mapToNewRole(payload.name);
+  public async confirm(
+    dto: ConfirmAccountRequest,
+  ): Promise<ConfirmAccountResponse> {
+    await this.userRepository.confirmById(dto.uuid);
+    return { error: null, status: HttpStatus.OK };
+  }
+
+  public async changePassword(
+    dto: ChangePasswordRequest,
+  ): Promise<ChangePasswordResponse> {
+    const user: User = await this.userRepository.findById(dto.uuid);
+
+    if (user == null) {
+      return { error: 'Пользователь не найден', status: HttpStatus.NOT_FOUND };
+    }
+
+    user.login.password = dto.password;
+    await this.userRepository.saveUser(user);
+
+    return { error: null, status: HttpStatus.OK };
+  }
+
+  public async createRole(dto: CreateRoleDto): Promise<CreateRoleResponse> {
+    let role: Role = this.roleMapper.mapToNewRole(dto.name);
     role = await this.roleRepository.saveRole(role);
-    return { status: '200', role: role };
+
+    return { status: HttpStatus.OK, role: role };
   }
 
-  public async findByLogin(dto: FindLoginDto) {
-    const user: User = await this.userRepository.findUserByLogin(dto.login);
+  public async findByLogin(dto: FindLoginDto): Promise<FindOneUserResponse> {
+    const user: User = await this.userRepository.findByLogin(dto.login);
     return { user: this.userMapper.mapToUserDto(user) };
   }
 
-  public async findByPhone(dto: FindPhoneDto) {
-    const user: User = await this.userRepository.findUserByPhone(dto.phone);
-    return { user: this.userMapper.mapToUserDto(user) };
-  }
-
-  public async findByEmail(dto: FindEmailDto) {
-    const user: User = await this.userRepository.findUserByEmail(dto.email);
-    return { user: this.userMapper.mapToUserDto(user) };
-  }
-
-  public async findByInn(dto: FindInnDto) {
-    const user: User = await this.userRepository.findUserByInn(dto.inn);
-    return { user: this.userMapper.mapToUserDto(user) };
-  }
-
-  public async getHashedPassword(dto: FindLoginDto) {
+  public async getHashedPassword(
+    dto: FindLoginDto,
+  ): Promise<GetHashedPasswordResponse> {
     const user: User = await this.userRepository.findHashedPassword(dto.login);
     return { password: user.login.password };
   }
@@ -120,31 +144,49 @@ export class UserService implements OnModuleInit {
     dto: UploadImageRequest,
   ): Promise<UploadImageResponse> {
     await this.deleteUserPrevImage(dto.uuid);
+
     const image: ImageUserResponse = await firstValueFrom(
       this.imageSvc.imageUploadUser(dto),
     );
-    await this.userRepository.setImageToUser(image.uuid, dto.uuid);
-    return { status: '200', error: null, uuid: image.uuid };
+
+    await this.userRepository.setImage(image.uuid, dto.uuid);
+    return { status: HttpStatus.OK, error: null, uuid: image.uuid };
   }
 
   public async deleteImage(
     dto: DeleteImageRequest,
   ): Promise<DeleteImageResponse> {
-    const user: User = await this.userRepository.findUserById(dto.uuid);
+    const user: User = await this.userRepository.findById(dto.uuid);
+
     if (user.image !== null) {
-      await this.userRepository.deleteImageFromUser(dto.uuid);
-      return await firstValueFrom(
-        this.imageSvc.imageDelete({ uuid: user.image }),
-      );
+      await this.userRepository.deleteImage(dto.uuid);
+      await firstValueFrom(this.imageSvc.imageDelete({ uuid: user.image }));
     }
-    return { status: '200', error: 'Пользователь не имеет аватара' };
+    return {
+      status: HttpStatus.NOT_FOUND,
+      error: 'Пользователь не имеет аватара',
+    };
+  }
+  //TODO: complete it
+  public async changeInfo(dto: ChangeInfoRequest): Promise<ChangeInfoResponse> {
+    return { error: null, status: HttpStatus.OK };
+  }
+
+  public async changeCompanyInfo(
+    dto: ChangeCompanyInfoRequest,
+  ): Promise<ChangeInfoResponse> {
+    return { error: null, status: HttpStatus.OK };
+  }
+
+  public async checkUser(dto: CheckUserRequest): Promise<CheckUserResponse> {
+    return { error: null, status: HttpStatus.OK };
   }
 
   private async deleteUserPrevImage(uuid: string) {
-    const user: User = await this.userRepository.findUserById(uuid);
+    const user: User = await this.userRepository.findById(uuid);
+
     if (user.image !== null) {
       await firstValueFrom(this.imageSvc.imageDelete({ uuid: user.image }));
     }
-    return;
   }
 }

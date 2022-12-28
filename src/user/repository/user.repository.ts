@@ -10,7 +10,7 @@ export class UserRepository {
     return await this.userRepository.save(user);
   }
 
-  public async findAllUsers(): Promise<User[]> {
+  public async findAll(): Promise<User[]> {
     return await this.userRepository.find({
       relations: {
         login: true,
@@ -21,7 +21,7 @@ export class UserRepository {
     });
   }
 
-  public async findUserById(uuid: string): Promise<User> {
+  public async findById(uuid: string): Promise<User> {
     return await this.userRepository.findOne({
       where: { uuid: uuid },
       relations: {
@@ -33,7 +33,7 @@ export class UserRepository {
     });
   }
 
-  public async findUserByLogin(login: string): Promise<User> {
+  public async findByLogin(login: string): Promise<User> {
     return await this.userRepository.findOne({
       where: {
         login: {
@@ -49,7 +49,7 @@ export class UserRepository {
     });
   }
 
-  public async findUserByPhone(phone: string): Promise<User> {
+  public async findByPhone(phone: string): Promise<User> {
     return await this.userRepository.findOne({
       where: { phone: phone },
       relations: {
@@ -61,7 +61,7 @@ export class UserRepository {
     });
   }
 
-  public async findUserByInn(inn: string): Promise<User> {
+  public async findByInn(inn: string): Promise<User> {
     return await this.userRepository.findOne({
       where: {
         ur: {
@@ -77,7 +77,7 @@ export class UserRepository {
     });
   }
 
-  public async findUserByEmail(email: string): Promise<User> {
+  public async findByEmail(email: string): Promise<User> {
     return await this.userRepository.findOne({
       where: { email: email },
       relations: {
@@ -102,11 +102,19 @@ export class UserRepository {
     });
   }
 
-  public async deleteImageFromUser(uuid: string) {
+  public async deleteImage(uuid: string) {
     return await this.userRepository.update(uuid, { image: null });
   }
 
-  public async setImageToUser(imageUuid: string, userUuid: string) {
+  public async setImage(imageUuid: string, userUuid: string) {
     return await this.userRepository.update(userUuid, { image: imageUuid });
+  }
+
+  public async confirmById(uuid: string) {
+    await this.userRepository.update(uuid, {
+      info: {
+        enabled: true,
+      },
+    });
   }
 }

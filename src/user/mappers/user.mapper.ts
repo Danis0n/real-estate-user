@@ -31,7 +31,6 @@ export class UserMapper {
     user.date = new Date();
     if (dto.inn != '' && dto.link != '')
       user.ur = this.mapToUserUrInfoCreate(dto.inn, dto.link);
-
     return user;
   }
 
@@ -47,7 +46,7 @@ export class UserMapper {
     info.birthData = dto.birthData;
     info.firstName = dto.firstName;
     info.lastName = dto.lastName;
-    info.enabled = true;
+    info.enabled = false;
     info.locked = false;
     return info;
   }
@@ -66,7 +65,7 @@ export class UserMapper {
     return dto;
   }
 
-  public mapArrayUsersDto(users: User[]): UserDto[] {
+  public mapToArrayUserDto(users: User[]): UserDto[] {
     const usersDto: UserDto[] = [];
     users.forEach((User) => {
       usersDto.push(this.mapToUserDto(User));
