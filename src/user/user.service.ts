@@ -167,18 +167,47 @@ export class UserService implements OnModuleInit {
       error: 'Пользователь не имеет аватара',
     };
   }
-  //TODO: complete it
+
   public async changeInfo(dto: ChangeInfoRequest): Promise<ChangeInfoResponse> {
+    const user: User = await this.userRepository.findById(dto.uuid);
+
+    if (user == null)
+      return { error: 'Пользователь не найден', status: HttpStatus.NOT_FOUND };
+
+    if (dto.firstName) user.info.firstName = dto.firstName;
+    if (dto.lastName) user.info.lastName = dto.lastName;
+    if (dto.email) user.email = dto.email;
+    if (dto.phone) user.phone = dto.phone;
+
+    await this.userRepository.saveUser(user);
     return { error: null, status: HttpStatus.OK };
   }
 
   public async changeCompanyInfo(
     dto: ChangeCompanyInfoRequest,
   ): Promise<ChangeInfoResponse> {
+    const user: User = await this.userRepository.findById(dto.uuid);
+
+    if (user == null)
+      return { error: 'Пользователь не найден', status: HttpStatus.NOT_FOUND };
+
+    if (dto.description) user.ur.description = dto.description;
+    if (dto.link) user.ur.link = dto.link;
+    if (dto.address) user.ur.address = dto.address;
+
+    await this.userRepository.saveUser(user);
     return { error: null, status: HttpStatus.OK };
   }
 
   public async checkUser(dto: CheckUserRequest): Promise<CheckUserResponse> {
+    const users: User[] = await this.userRepository.findByCreateParams(dto);
+
+    if (users && users.length >= 1)
+      return {
+        error: 'Пользователь с данными параметрами уже существует',
+        status: HttpStatus.BAD_REQUEST,
+      };
+
     return { error: null, status: HttpStatus.OK };
   }
 

@@ -14,7 +14,6 @@ import { UserUrInfo } from './entity/user.ur.info.entity';
 import { IMAGE_PACKAGE_NAME, IMAGE_SERVICE_NAME } from './proto/image.pb';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { UserValidator } from './utils/user.validator';
-import { UserConfig } from "../config/user-config.service";
 
 @Module({
   imports: [
@@ -38,7 +37,6 @@ import { UserConfig } from "../config/user-config.service";
     RoleMapper,
     RoleRepository,
     UserValidator,
-    UserConfig,
   ],
   controllers: [UserController],
 })

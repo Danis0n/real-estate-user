@@ -1,9 +1,6 @@
 import {
   CreateUserRequest,
-  FindOneUserEmailRequest,
-  FindOneUserInnRequest,
   FindOneUserLoginRequest,
-  FindOneUserPhoneRequest,
   FindOneUserRequest,
   User,
   UserInfo,
@@ -30,18 +27,6 @@ export class FindOneDto implements FindOneUserRequest {
 
 export class FindLoginDto implements FindOneUserLoginRequest {
   login: string;
-}
-
-export class FindPhoneDto implements FindOneUserPhoneRequest {
-  phone: string;
-}
-
-export class FindEmailDto implements FindOneUserEmailRequest {
-  email: string;
-}
-
-export class FindInnDto implements FindOneUserInnRequest {
-  inn: string;
 }
 
 export class UserDto implements User {

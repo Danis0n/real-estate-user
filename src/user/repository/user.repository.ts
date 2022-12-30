@@ -1,6 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entity/user.entity';
 import { Repository } from 'typeorm';
+import { CheckUserRequest } from '../proto/user.pb';
 
 export class UserRepository {
   @InjectRepository(User)
@@ -46,6 +47,24 @@ export class UserRepository {
         roles: true,
         ur: true,
       },
+    });
+  }
+
+  public async findByCreateParams(dto: CheckUserRequest): Promise<User[]> {
+    return this.userRepository.find({
+      where: [
+        {
+          email: dto.email,
+        },
+        {
+          login: {
+            login: dto.login,
+          },
+        },
+        {
+          phone: dto.phone,
+        },
+      ],
     });
   }
 
