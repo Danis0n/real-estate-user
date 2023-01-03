@@ -19,6 +19,7 @@ export class CreateUserRequestDto implements CreateUserRequest {
   public readonly dateOfBirth: string;
   public readonly inn: string;
   public readonly link: string;
+  public readonly role: string;
 }
 
 export class FindOneDto implements FindOneUserRequest {

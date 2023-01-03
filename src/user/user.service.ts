@@ -12,11 +12,6 @@ import { Role } from './entity/role.entity';
 import { RoleRepository } from './repository/role.repository';
 import { RoleMapper } from './mappers/role.mapper';
 import {
-  ChangeCompanyInfoRequest,
-  ChangeInfoRequest,
-  ChangeInfoResponse,
-  ChangePasswordRequest,
-  ChangePasswordResponse,
   CheckUserRequest,
   CheckUserResponse,
   ConfirmAccountRequest,
@@ -28,6 +23,14 @@ import {
   FindAllUsersResponse,
   FindOneUserResponse,
   GetHashedPasswordResponse,
+  LockStateRequest,
+  LockStateResponse,
+  UpdateCompanyInfoRequest,
+  UpdateCompanyInfoResponse,
+  UpdateInfoRequest,
+  UpdateInfoResponse,
+  UpdatePasswordRequest,
+  UpdatePasswordResponse,
   UploadImageRequest,
   UploadImageResponse,
 } from './proto/user.pb';
@@ -74,12 +77,10 @@ export class UserService implements OnModuleInit {
   ): Promise<CreateUserResponse> {
     let user: User = this.userMapper.mapToUserCreate(dto);
 
-    const role: Role = await this.roleRepository.findByName(
-      dto.inn == '' && dto.link == '' ? 'company' : 'user',
-    );
+    const role: Role = await this.roleRepository.findByName(dto.role);
 
     user.roles = [role];
-    user = await this.userRepository.saveUser(user);
+    user = await this.userRepository.save(user);
 
     if (!user) return { status: HttpStatus.BAD_REQUEST, user: null };
 
@@ -102,21 +103,21 @@ export class UserService implements OnModuleInit {
   public async confirm(
     dto: ConfirmAccountRequest,
   ): Promise<ConfirmAccountResponse> {
-    await this.userRepository.confirmById(dto.uuid);
+    await this.userRepository.confirmById(dto.UUID);
     return { error: null, status: HttpStatus.OK };
   }
 
   public async changePassword(
-    dto: ChangePasswordRequest,
-  ): Promise<ChangePasswordResponse> {
-    const user: User = await this.userRepository.findById(dto.uuid);
+    dto: UpdatePasswordRequest,
+  ): Promise<UpdatePasswordResponse> {
+    const user: User = await this.userRepository.findById(dto.UUID);
 
     if (user == null) {
       return { error: 'Пользователь не найден', status: HttpStatus.NOT_FOUND };
     }
 
     user.login.password = dto.password;
-    await this.userRepository.saveUser(user);
+    await this.userRepository.save(user);
 
     return { error: null, status: HttpStatus.OK };
   }
@@ -143,24 +144,24 @@ export class UserService implements OnModuleInit {
   public async uploadImage(
     dto: UploadImageRequest,
   ): Promise<UploadImageResponse> {
-    await this.deleteUserPrevImage(dto.uuid);
+    await this.deleteUserPrevImage(dto.UUID);
 
     const image: ImageUserResponse = await firstValueFrom(
       this.imageSvc.imageUploadUser(dto),
     );
 
-    await this.userRepository.setImage(image.uuid, dto.uuid);
-    return { status: HttpStatus.OK, error: null, uuid: image.uuid };
+    await this.userRepository.setImage(image.UUID, dto.UUID);
+    return { status: HttpStatus.OK, error: null, UUID: image.UUID };
   }
 
   public async deleteImage(
     dto: DeleteImageRequest,
   ): Promise<DeleteImageResponse> {
-    const user: User = await this.userRepository.findById(dto.uuid);
+    const user: User = await this.userRepository.findById(dto.UUID);
 
     if (user.image !== null) {
-      await this.userRepository.deleteImage(dto.uuid);
-      await firstValueFrom(this.imageSvc.imageDelete({ uuid: user.image }));
+      await this.userRepository.deleteImage(dto.UUID);
+      await firstValueFrom(this.imageSvc.imageDelete({ UUID: user.image }));
     }
     return {
       status: HttpStatus.NOT_FOUND,
@@ -168,8 +169,8 @@ export class UserService implements OnModuleInit {
     };
   }
 
-  public async changeInfo(dto: ChangeInfoRequest): Promise<ChangeInfoResponse> {
-    const user: User = await this.userRepository.findById(dto.uuid);
+  public async updateInfo(dto: UpdateInfoRequest): Promise<UpdateInfoResponse> {
+    const user: User = await this.userRepository.findById(dto.UUID);
 
     if (user == null)
       return { error: 'Пользователь не найден', status: HttpStatus.NOT_FOUND };
@@ -179,14 +180,14 @@ export class UserService implements OnModuleInit {
     if (dto.email) user.email = dto.email;
     if (dto.phone) user.phone = dto.phone;
 
-    await this.userRepository.saveUser(user);
+    await this.userRepository.save(user);
     return { error: null, status: HttpStatus.OK };
   }
 
-  public async changeCompanyInfo(
-    dto: ChangeCompanyInfoRequest,
-  ): Promise<ChangeInfoResponse> {
-    const user: User = await this.userRepository.findById(dto.uuid);
+  public async updateCompanyInfo(
+    dto: UpdateCompanyInfoRequest,
+  ): Promise<UpdateCompanyInfoResponse> {
+    const user: User = await this.userRepository.findById(dto.UUID);
 
     if (user == null)
       return { error: 'Пользователь не найден', status: HttpStatus.NOT_FOUND };
@@ -195,7 +196,7 @@ export class UserService implements OnModuleInit {
     if (dto.link) user.ur.link = dto.link;
     if (dto.address) user.ur.address = dto.address;
 
-    await this.userRepository.saveUser(user);
+    await this.userRepository.save(user);
     return { error: null, status: HttpStatus.OK };
   }
 
@@ -215,7 +216,24 @@ export class UserService implements OnModuleInit {
     const user: User = await this.userRepository.findById(uuid);
 
     if (user.image !== null) {
-      await firstValueFrom(this.imageSvc.imageDelete({ uuid: user.image }));
+      await firstValueFrom(this.imageSvc.imageDelete({ UUID: user.image }));
     }
+  }
+
+  public async updateUserLock(
+    dto: LockStateRequest,
+  ): Promise<LockStateResponse> {
+    const user: User = await this.userRepository.findById(dto.UUID);
+
+    if (user == null)
+      return {
+        error: 'Пользователь не был найден',
+        status: HttpStatus.NOT_FOUND,
+      };
+
+    user.info.locked = dto.state;
+    await this.userRepository.save(user);
+
+    return { error: null, status: HttpStatus.OK };
   }
 }

@@ -1,8 +1,8 @@
 import { Controller, Inject } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
 import {
-  ChangeInfoResponse,
-  ChangePasswordResponse,
+  UpdateInfoResponse,
+  UpdatePasswordResponse,
   CheckUserResponse,
   ConfirmAccountResponse,
   CreateRoleResponse,
@@ -13,6 +13,8 @@ import {
   GetHashedPasswordResponse,
   UploadImageResponse,
   USER_SERVICE_NAME,
+  UpdateCompanyInfoResponse,
+  LockStateResponse,
 } from './proto/user.pb';
 import { UserService } from './user.service';
 
@@ -66,8 +68,8 @@ export class UserController {
     return this.service.deleteImage(payload);
   }
 
-  @GrpcMethod(USER_SERVICE_NAME, 'ChangePassword')
-  private async changePassword(payload): Promise<ChangePasswordResponse> {
+  @GrpcMethod(USER_SERVICE_NAME, 'UpdatePassword')
+  private async changePassword(payload): Promise<UpdatePasswordResponse> {
     return this.service.changePassword(payload);
   }
 
@@ -76,13 +78,18 @@ export class UserController {
     return this.service.confirm(payload);
   }
 
-  @GrpcMethod(USER_SERVICE_NAME, 'ChangeInfo')
-  private async changeInfo(payload): Promise<ChangeInfoResponse> {
-    return this.service.changeInfo(payload);
+  @GrpcMethod(USER_SERVICE_NAME, 'UpdateInfo')
+  private async changeInfo(payload): Promise<UpdateInfoResponse> {
+    return this.service.updateInfo(payload);
   }
 
-  @GrpcMethod(USER_SERVICE_NAME, 'ChangeCompanyInfo')
-  private async changeCompanyInfo(payload): Promise<ChangeInfoResponse> {
-    return this.service.changeCompanyInfo(payload);
+  @GrpcMethod(USER_SERVICE_NAME, 'UpdateCompanyInfo')
+  private async changeCompanyInfo(payload): Promise<UpdateCompanyInfoResponse> {
+    return this.service.updateCompanyInfo(payload);
+  }
+
+  @GrpcMethod(USER_SERVICE_NAME, 'UpdateUserLock')
+  private async lockUser(payload): Promise<LockStateResponse> {
+    return this.service.updateUserLock(payload);
   }
 }
